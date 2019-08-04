@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,58 +11,90 @@ public class PlayerController : MonoBehaviour
     private float horizontalMove = 0f;
     private Rigidbody2D m_Rigidbody2D;
     private Vector3 m_Velocity = Vector3.zero;
-    [Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;
+    private SpriteRenderer spriteRenderer;
+    [Range(0, .3f)] [SerializeField]
+    private float m_MovementSmoothing = .05f;
+    [SerializeField]
+    private float m_JumpForce = 400f;
+    private bool jump = false;
+    [SerializeField]
+    private Transform m_GroundCheck;
+    [SerializeField]
+    private LayerMask m_WhatIsGround;
+    const float k_GroundedRadius = .2f;
+    private bool m_Grounded;
+
+    public UnityEvent OnLandEvent;
+
+    private void Awake()
+    {
+        if (OnLandEvent == null)
+            OnLandEvent = new UnityEvent();
+    }
+
     private void Start()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
 
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+        if (Input.GetButtonDown("Jump"))
+        {
+            jump = true;
+        }
         //Debug.Log(horizontalMove);
     }
-    // Update is called once per frame
     void FixedUpdate()
     {
-        Move(horizontalMove * Time.fixedDeltaTime);
+        bool wasGrounded = m_Grounded;
+        m_Grounded = false;
 
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
+        //Debug.Log(colliders);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].gameObject != gameObject)
+            {
+                m_Grounded = true;
+                if (!wasGrounded)
+                    OnLandEvent.Invoke();
+            }
+        }
+
+        Move(horizontalMove * Time.fixedDeltaTime,jump);
+        jump = false;
+        
     }
-    public void Move(float move)
+    public void Move(float move,bool jump)
     {
-
-
-        // Move the character by finding the target velocity
         Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
-        Debug.Log(targetVelocity);
-        // And then smoothing it out and applying it to the character
+        //Debug.Log(targetVelocity);
         m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
-
-        // If the input is moving the player right and the player is facing left...
-        if (move > 0)
+        if (move < 0)
         {
-            // ... flip the player.
-            Flip();
+            Flip(true);
         }
-        // Otherwise if the input is moving the player left and the player is facing right...
-        else if (move < 0)
+        else if (move>0)
         {
-            // ... flip the player.
-            Flip();
+            Flip(false);
+        }
+
+        if (jump)
+        {
+            // Add a vertical force to the player.
+            //m_Grounded = false;
+            m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
         }
     }
 
 
-
-    private void Flip()
+    //倒轉圖案
+    private void Flip(bool isflip)
     {
-        //// Switch the way the player is labelled as facing.
-        //m_FacingRight = !m_FacingRight;
-
-        //// Multiply the player's x local scale by -1.
-        //Vector3 theScale = transform.localScale;
-        //theScale.x *= -1;
-        //transform.localScale = theScale;
+            spriteRenderer.flipX = isflip;
     }
 }
