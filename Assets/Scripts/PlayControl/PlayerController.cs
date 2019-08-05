@@ -1,11 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    //private CharacterController2D controller;
     [SerializeField]
     private float runSpeed = 0.2f;
     private float horizontalMove = 0f;
@@ -17,20 +15,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float m_JumpForce = 400f;
     private bool jump = false;
+
     [SerializeField]
-    private Transform m_GroundCheck;
+    private Transform m_LGroundCheck;
+    [SerializeField]
+    private Transform m_RGroundCheck;
     [SerializeField]
     private LayerMask m_WhatIsGround;
-    const float k_GroundedRadius = .2f;
+    [SerializeField]
     private bool m_Grounded;
 
-    public UnityEvent OnLandEvent;
-
-    private void Awake()
-    {
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
-    }
 
     private void Start()
     {
@@ -40,39 +34,24 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-
+        //在左腳判定點與右腳判定點的矩形範圍內有包含地板會回傳int，這邊bool
+        m_Grounded=Physics2D.OverlapArea(m_LGroundCheck.position,m_RGroundCheck.position,m_WhatIsGround);
+        
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump")&&m_Grounded==true)
         {
             jump = true;
         }
-        //Debug.Log(horizontalMove);
+
     }
     void FixedUpdate()
     {
-        bool wasGrounded = m_Grounded;
-        m_Grounded = false;
-
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
-        //Debug.Log(colliders);
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i].gameObject != gameObject)
-            {
-                m_Grounded = true;
-                if (!wasGrounded)
-                    OnLandEvent.Invoke();
-            }
-        }
-
         Move(horizontalMove * Time.fixedDeltaTime,jump);
         jump = false;
-        
     }
     public void Move(float move,bool jump)
     {
         Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
-        //Debug.Log(targetVelocity);
         m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         if (move < 0)
         {
@@ -85,8 +64,6 @@ public class PlayerController : MonoBehaviour
 
         if (jump)
         {
-            // Add a vertical force to the player.
-            //m_Grounded = false;
             m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
         }
     }
@@ -97,4 +74,6 @@ public class PlayerController : MonoBehaviour
     {
             spriteRenderer.flipX = isflip;
     }
+
+
 }
