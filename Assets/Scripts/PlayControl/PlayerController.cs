@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 
 public class PlayerController : MonoBehaviour
@@ -30,20 +29,11 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
 
-    [Header("Events")]
-    [Space]
-
-    public UnityEvent OnLandEvent;
-
     private void Start()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
-
     }
 
     private void Update()
@@ -52,28 +42,23 @@ public class PlayerController : MonoBehaviour
         m_Grounded = Physics2D.OverlapArea(m_LGroundCheck.position, m_RGroundCheck.position, m_WhatIsGround);
 
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
-
-        animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        Debug.Log(horizontalMove);
+        //animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
         if (Input.GetButtonDown("Jump") && m_Grounded == true)
         {
             jump = true;
-            animator.SetBool("IsJumping", true);
+            //animator.SetBool("IsJumping", true);
         }
-        //SetAnimationState();
+
+
+        SetAnimationState(horizontalMove);
     }
     void FixedUpdate()
     {
         Move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
 
-        bool wasGrounded = m_Grounded;
-        //m_Grounded = false;
-        if (m_Grounded == true)
-        {
-            OnLandEvent.Invoke();
-            Debug.Log("inhere");
-        }
 
     }
 
@@ -108,8 +93,23 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.flipX = isflip;
     }
 
-    //private void SetAnimationState()
-    //{
-
-    //}
+    private void SetAnimationState(float horizontalMove)
+    {
+        if (horizontalMove!= 0)
+        {
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        }
+        else if (horizontalMove == 0)
+        {
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        }
+        if (m_Grounded)
+        {
+            animator.SetBool("IsJumping", false);
+        }
+        else if(!m_Grounded&&m_Rigidbody2D.velocity.y>0)
+        {
+            animator.SetBool("IsJumping", true);
+        }
+    }
 }
