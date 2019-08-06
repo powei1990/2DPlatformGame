@@ -42,15 +42,11 @@ public class PlayerController : MonoBehaviour
         m_Grounded = Physics2D.OverlapArea(m_LGroundCheck.position, m_RGroundCheck.position, m_WhatIsGround);
 
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
-        Debug.Log(horizontalMove);
-        //animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
         if (Input.GetButtonDown("Jump") && m_Grounded == true)
         {
             jump = true;
-            //animator.SetBool("IsJumping", true);
         }
-
 
         SetAnimationState(horizontalMove);
     }
@@ -58,8 +54,6 @@ public class PlayerController : MonoBehaviour
     {
         Move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
-
-
     }
 
 
@@ -98,18 +92,27 @@ public class PlayerController : MonoBehaviour
         if (horizontalMove!= 0)
         {
             animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+
         }
         else if (horizontalMove == 0)
         {
             animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
         }
+
         if (m_Grounded)
         {
             animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", false);
         }
         else if(!m_Grounded&&m_Rigidbody2D.velocity.y>0)
         {
             animator.SetBool("IsJumping", true);
         }
+        else if (!m_Grounded && m_Rigidbody2D.velocity.y < 0)
+        {
+            animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", true);
+        }
+
     }
 }
