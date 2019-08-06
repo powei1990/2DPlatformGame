@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private bool m_Grounded;
 
-    public Animator animator;
+    private Animator animator;
 
     [Header("Events")]
     [Space]
@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
 
         if (OnLandEvent == null)
             OnLandEvent = new UnityEvent();
@@ -59,21 +60,18 @@ public class PlayerController : MonoBehaviour
             jump = true;
             animator.SetBool("IsJumping", true);
         }
-
+        //SetAnimationState();
     }
     void FixedUpdate()
     {
         Move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
-        bool wasGrounded = m_Grounded;
-        Debug.Log("wasGround"+wasGrounded);
-        Debug.Log("m_ground" + m_Grounded);
-        m_Grounded = false;
 
+        bool wasGrounded = m_Grounded;
+        //m_Grounded = false;
         if (m_Grounded == true)
         {
-            if (wasGrounded)
-                OnLandEvent.Invoke();
+            OnLandEvent.Invoke();
             Debug.Log("inhere");
         }
 
@@ -110,5 +108,8 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.flipX = isflip;
     }
 
+    //private void SetAnimationState()
+    //{
 
+    //}
 }

@@ -509,6 +509,7 @@ GameObject:
   - component: {fileID: 1878639453}
   - component: {fileID: 1878639456}
   - component: {fileID: 1878639455}
+  - component: {fileID: 1878639457}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -622,6 +623,22 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   m_Grounded: 0
+  OnLandEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1878639455}
+        m_MethodName: OnLanding
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: UnityEngine.Events.UnityEvent, UnityEngine.CoreModule, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
 --- !u!61 &1878639456
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -648,3 +665,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.26, y: 0.31}
   m_EdgeRadius: 0
+--- !u!95 &1878639457
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1878639451}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5629ab7bb8aec10419f9a18e0ec15c14, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
