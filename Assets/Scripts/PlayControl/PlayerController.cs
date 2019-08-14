@@ -29,11 +29,17 @@ public class PlayerController : MonoBehaviour
 
     private Animator animator;
 
+    protected Joystick joystick;
+    protected Joybutton joybutton;
+
     private void Start()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+
+        joystick = FindObjectOfType<Joystick>();
+        joybutton = FindObjectOfType<Joybutton>();
     }
 
     private void Update()
@@ -41,9 +47,9 @@ public class PlayerController : MonoBehaviour
         //在左腳判定點與右腳判定點的矩形範圍內有包含地板會回傳int，這邊bool
         m_Grounded = Physics2D.OverlapArea(m_LGroundCheck.position, m_RGroundCheck.position, m_WhatIsGround);
 
-        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+        horizontalMove =( joystick.Horizontal+Input.GetAxisRaw("Horizontal")) * runSpeed;
 
-        if (Input.GetButtonDown("Jump") && m_Grounded == true)
+        if ((Input.GetButtonDown("Jump") || joybutton.Pressed == true) && m_Grounded == true)
         {
             jump = true;
         }

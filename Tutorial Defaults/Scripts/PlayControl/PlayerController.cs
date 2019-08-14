@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 
 public class PlayerController : MonoBehaviour
@@ -28,21 +27,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private bool m_Grounded;
 
-    public Animator animator;
-
-    [Header("Events")]
-    [Space]
-
-    public UnityEvent OnLandEvent;
+    private Animator animator;
 
     private void Start()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        if (OnLandEvent == null)
-            OnLandEvent = new UnityEvent();
-
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -52,31 +43,17 @@ public class PlayerController : MonoBehaviour
 
         horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 
-        animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
-
         if (Input.GetButtonDown("Jump") && m_Grounded == true)
         {
             jump = true;
-            animator.SetBool("IsJumping", true);
         }
 
+        SetAnimationState(horizontalMove);
     }
     void FixedUpdate()
     {
         Move(horizontalMove * Time.fixedDeltaTime, jump);
         jump = false;
-        bool wasGrounded = m_Grounded;
-        Debug.Log("wasGround"+wasGrounded);
-        Debug.Log("m_ground" + m_Grounded);
-        m_Grounded = false;
-
-        if (m_Grounded == true)
-        {
-            if (wasGrounded)
-                OnLandEvent.Invoke();
-            Debug.Log("inhere");
-        }
-
     }
 
 
@@ -110,5 +87,32 @@ public class PlayerController : MonoBehaviour
         spriteRenderer.flipX = isflip;
     }
 
+    private void SetAnimationState(float horizontalMove)
+    {
+        if (horizontalMove!= 0)
+        {
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
+        }
+        else if (horizontalMove == 0)
+        {
+            animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        }
+
+        if (m_Grounded)
+        {
+            animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", false);
+        }
+        else if(!m_Grounded&&m_Rigidbody2D.velocity.y>0)
+        {
+            animator.SetBool("IsJumping", true);
+        }
+        else if (!m_Grounded && m_Rigidbody2D.velocity.y < 0)
+        {
+            animator.SetBool("IsJumping", false);
+            animator.SetBool("IsFalling", true);
+        }
+
+    }
 }
