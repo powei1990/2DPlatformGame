@@ -16,7 +16,7 @@ public class PlayerController : MonoBehaviour
     private float m_MovementSmoothing = .05f;
     [SerializeField]
     private float m_JumpForce = 400f;
-    private bool jump = false;
+
 
     [SerializeField]
     private Transform m_LGroundCheck;
@@ -32,6 +32,14 @@ public class PlayerController : MonoBehaviour
     protected Joystick joystick;
     protected Joybutton joybutton;
 
+    public float wallCheckDistance;
+    public Transform wallCheck;
+    private bool isTouchingWall;
+    private bool isWallSliding;
+    public float wallSlideSpeed;
+
+    private bool isFacingRight = true;
+
     private void Start()
     {
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -44,58 +52,100 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        //在左腳判定點與右腳判定點的矩形範圍內有包含地板會回傳int，這邊bool
-        m_Grounded = Physics2D.OverlapArea(m_LGroundCheck.position, m_RGroundCheck.position, m_WhatIsGround);
+        CheckInput();
 
-        horizontalMove =( joystick.Horizontal+Input.GetAxisRaw("Horizontal")) * runSpeed;
-
-        if ((Input.GetButtonDown("Jump") || joybutton.Pressed == true) && m_Grounded == true)
-        {
-            jump = true;
-        }
-
+        CheckIfWallSliding();
         SetAnimationState(horizontalMove);
+
     }
     void FixedUpdate()
     {
-        Move(horizontalMove * Time.fixedDeltaTime, jump);
-        jump = false;
+        ApplyMovement();
+        CheckSurroundings();
     }
 
+    private void CheckInput()
+    {
+        horizontalMove = (joystick.Horizontal + Input.GetAxisRaw("Horizontal")) * runSpeed;
 
-    public void Move(float move, bool jump)
+        if ((Input.GetButtonDown("Jump") || joybutton.Pressed == true) && m_Grounded == true)
+        {
+            Jump();
+        }
+    }
+
+    private void ApplyMovement()
+    {
+
+        if (m_Grounded)
+        {
+            Move(horizontalMove * Time.fixedDeltaTime);
+        }
+        else if (!m_Grounded && !isWallSliding && horizontalMove != 0)
+        {
+
+            Move(horizontalMove * Time.fixedDeltaTime);
+        }
+        else if (!m_Grounded && !isWallSliding && horizontalMove == 0)
+        {
+            m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, m_Rigidbody2D.velocity.y);
+        }
+
+        if (isWallSliding)
+        {
+            if (m_Rigidbody2D.velocity.y < -wallSlideSpeed)
+            {
+                m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, -wallSlideSpeed);
+            }
+        }
+    }
+
+    public void Move(float move)
     {
         Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
         m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
-        if (move < 0)
-        {
-            Flip(true);
-        }
-        else if (move > 0)
-        {
-            Flip(false);
-        }
 
-        if (jump)
-        {
-            m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-        }
     }
 
-    public void OnLanding()
+    private void Jump()
     {
-        animator.SetBool("IsJumping", false);
-        Debug.Log("jump is false");
+        m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
     }
+
     //倒轉圖案
-    private void Flip(bool isflip)
+    private void Flip()
     {
-        spriteRenderer.flipX = isflip;
+        isFacingRight = !isFacingRight;
+
+        transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
     }
+
+    private void CheckSurroundings()
+    {
+        //在左腳判定點與右腳判定點的矩形範圍內有包含地板會回傳int，這邊bool
+        m_Grounded = Physics2D.OverlapArea(m_LGroundCheck.position, m_RGroundCheck.position, m_WhatIsGround);
+
+
+        isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right*transform.localScale.x, wallCheckDistance, m_WhatIsGround);
+        Debug.Log(isTouchingWall);
+    }
+
+    private void CheckIfWallSliding()
+    {
+        if (isTouchingWall && !m_Grounded && m_Rigidbody2D.velocity.y < 0)
+        {
+            isWallSliding = true;
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
 
     private void SetAnimationState(float horizontalMove)
     {
-        if (horizontalMove!= 0)
+        if (horizontalMove != 0)
         {
             animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
 
@@ -110,7 +160,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsJumping", false);
             animator.SetBool("IsFalling", false);
         }
-        else if(!m_Grounded&&m_Rigidbody2D.velocity.y>0)
+        else if (!m_Grounded && m_Rigidbody2D.velocity.y > 0)
         {
             animator.SetBool("IsJumping", true);
         }
@@ -120,5 +170,17 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsFalling", true);
         }
 
+
+        if (isFacingRight && horizontalMove < 0)
+        {
+            Flip();
+        }
+        else if (!isFacingRight && horizontalMove > 0)
+        {
+            Flip();
+        }
+
+
     }
+
 }
