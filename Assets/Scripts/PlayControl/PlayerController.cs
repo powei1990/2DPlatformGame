@@ -5,18 +5,30 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    private bool m_Grounded;
+    private bool isTouchingWall;
+    private bool isWallSliding;
+    private bool isAttacking = false;
+    private bool isFacingRight = true;
+    private bool canAttack;
+
+    [SerializeField]
+    private int wallJumpForce;
+
+    public float wallCheckDistance;
+    public float wallSlideSpeed;
     [SerializeField]
     private float runSpeed = 0.2f;
     private float horizontalMove = 0f;
-    private Rigidbody2D m_Rigidbody2D;
-    private Vector3 m_Velocity = Vector3.zero;
-    private SpriteRenderer spriteRenderer;
-    [Range(0, .3f)]
     [SerializeField]
+    [Range(0, .3f)]
     private float m_MovementSmoothing = .05f;
     [SerializeField]
     private float m_JumpForce = 400f;
-
+    private float attackTimer;
+    private float fireRate = 2;
+   
+    
 
     [SerializeField]
     private Transform m_LGroundCheck;
@@ -25,22 +37,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private LayerMask m_WhatIsGround;
     [SerializeField]
-    private bool m_Grounded;
+    public Transform wallCheck;
+
+    private Rigidbody2D m_Rigidbody2D;
+    private Vector3 m_Velocity = Vector3.zero;
+    private SpriteRenderer spriteRenderer;
+ 
 
     private Animator animator;
+    private AnimatorStateInfo animState;
 
     protected Joystick joystick;
     protected Joybutton joybutton;
 
-    public float wallCheckDistance;
-    public Transform wallCheck;
-    private bool isTouchingWall;
-    private bool isWallSliding;
-    public float wallSlideSpeed;
 
-    private bool isFacingRight = true;
-    [SerializeField]
-    private int wallJumpForce;
 
     private void Start()
     {
@@ -50,6 +60,8 @@ public class PlayerController : MonoBehaviour
 
         joystick = FindObjectOfType<Joystick>();
         joybutton = FindObjectOfType<Joybutton>();
+
+
     }
 
     private void Update()
@@ -57,8 +69,9 @@ public class PlayerController : MonoBehaviour
         CheckInput();
 
         CheckIfWallSliding();
-        SetAnimationState(horizontalMove);
+        SetAnimationState(ref horizontalMove);
 
+        animState = animator.GetCurrentAnimatorStateInfo(0);
     }
     void FixedUpdate()
     {
@@ -73,6 +86,21 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") || joybutton.Pressed == true)
         {
             Jump();
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Attack();
+
+        }
+        else if(attackTimer < fireRate)
+        {
+            attackTimer += Time.deltaTime;
+
+        }
+        else if (attackTimer >= fireRate)
+        {
+            canAttack=true;
         }
 
     }
@@ -129,6 +157,29 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void Attack()
+    {
+        if (animState.IsName("Player_Idle")&&canAttack)
+        {
+            animator.SetTrigger("Attack1");
+            attackTimer = 0f;
+        }
+
+        else if (animState.IsName("Player_Attack_1")&&
+                  animState.normalizedTime>0.5f)
+        {
+            animator.SetTrigger("Attack2");
+            attackTimer = 0f;
+        }
+        else if (animState.IsName("Player_Attack_2")&&
+                  animState.normalizedTime > 0.1f)
+        {
+            animator.SetTrigger("Attack3");
+            canAttack = false;
+        }
+
+    }
+
     //倒轉圖案
     private void Flip()
     {
@@ -160,8 +211,9 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void SetAnimationState(float horizontalMove)
+    private void SetAnimationState(ref float horizontalMove)
     {
+        //跑步
         if (horizontalMove != 0)
         {
             animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
@@ -172,6 +224,7 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
         }
 
+        //著地
         if (m_Grounded)
         {
             animator.SetBool("IsJumping", false);
@@ -187,6 +240,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsFalling", true);
         }
 
+        //攀牆
         if (isWallSliding)
         {
             animator.SetBool("IsWallSliding", true);
@@ -196,6 +250,7 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsWallSliding", false);
         }
 
+        //面向
         if (isFacingRight && horizontalMove < 0)
         {
             Flip();
@@ -204,6 +259,8 @@ public class PlayerController : MonoBehaviour
         {
             Flip();
         }
+
+
 
 
     }

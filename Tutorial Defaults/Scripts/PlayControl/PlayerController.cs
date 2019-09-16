@@ -39,6 +39,8 @@ public class PlayerController : MonoBehaviour
     public float wallSlideSpeed;
 
     private bool isFacingRight = true;
+    [SerializeField]
+    private int wallJumpForce;
 
     private void Start()
     {
@@ -68,10 +70,11 @@ public class PlayerController : MonoBehaviour
     {
         horizontalMove = (joystick.Horizontal + Input.GetAxisRaw("Horizontal")) * runSpeed;
 
-        if ((Input.GetButtonDown("Jump") || joybutton.Pressed == true) && m_Grounded == true)
+        if (Input.GetButtonDown("Jump") || joybutton.Pressed == true)
         {
             Jump();
         }
+
     }
 
     private void ApplyMovement()
@@ -81,6 +84,7 @@ public class PlayerController : MonoBehaviour
         {
             Move(horizontalMove * Time.fixedDeltaTime);
         }
+        //防止等於零時卡住
         else if (!m_Grounded && !isWallSliding && horizontalMove != 0)
         {
 
@@ -109,7 +113,20 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-        m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+        if (isWallSliding && !m_Grounded)
+        {
+            wallJumpForce = isFacingRight ? -1*Mathf.Abs(wallJumpForce) : Mathf.Abs(wallJumpForce);
+            m_Rigidbody2D.AddForce(new Vector2(wallJumpForce, m_JumpForce));
+            //Debug.Log("wall jump");
+            //Debug.Log(wallJumpForce);
+
+        }
+
+        else if (m_Grounded)
+        {
+            m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
+            //Debug.Log("normal jump");
+        }
     }
 
     //倒轉圖案
@@ -127,7 +144,7 @@ public class PlayerController : MonoBehaviour
 
 
         isTouchingWall = Physics2D.Raycast(wallCheck.position, transform.right*transform.localScale.x, wallCheckDistance, m_WhatIsGround);
-        Debug.Log(isTouchingWall);
+        //Debug.Log(isTouchingWall);
     }
 
     private void CheckIfWallSliding()
@@ -170,6 +187,14 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("IsFalling", true);
         }
 
+        if (isWallSliding)
+        {
+            animator.SetBool("IsWallSliding", true);
+        }
+        else if (!isWallSliding)
+        {
+            animator.SetBool("IsWallSliding", false);
+        }
 
         if (isFacingRight && horizontalMove < 0)
         {
