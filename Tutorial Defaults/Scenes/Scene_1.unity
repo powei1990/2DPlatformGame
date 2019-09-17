@@ -1526,6 +1526,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a36bf1def393924f8040d0dab4d0760, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wallJumpForce: 300
+  wallCheckDistance: 1
+  wallSlideSpeed: 1
   runSpeed: 25
   m_MovementSmoothing: 0.047
   m_JumpForce: 600
@@ -1534,11 +1537,7 @@ MonoBehaviour:
   m_WhatIsGround:
     serializedVersion: 2
     m_Bits: 256
-  m_Grounded: 0
-  wallCheckDistance: 1
   wallCheck: {fileID: 275928566}
-  wallSlideSpeed: 1
-  wallJumpForce: 300
 --- !u!70 &1878639456
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
