@@ -32,7 +32,6 @@ public class AttackHit : MonoBehaviour
     void OnTriggerEnter2D(Collider2D col)
     {
 
-        Debug.Log("OnTriggerEnter");
         //    if (col.gameObject.GetComponent(attacksWhat.ToString()) != null)
         //    {
         //        if (parent.transform.position.x < col.transform.position.x)
@@ -43,7 +42,12 @@ public class AttackHit : MonoBehaviour
         //        {
         //            launchDirection = -1;
         //        }
+        if (col.gameObject.CompareTag("Enemy"))
+        {
+        Debug.Log("OnTriggerEnter");
+            
         col.gameObject.GetComponent(attacksWhat.ToString()).SendMessage("Hit");
+        }
         //    }
 
     }
