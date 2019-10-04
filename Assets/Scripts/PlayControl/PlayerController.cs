@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private bool isFacingRight = true;
     private bool canAttack;
 
+
     [SerializeField]
     private int wallJumpForce;
 
@@ -83,9 +84,10 @@ public class PlayerController : MonoBehaviour
     {
         horizontalMove = (joystick.Horizontal + Input.GetAxisRaw("Horizontal")) * runSpeed;
 
-        if (Input.GetButtonDown("Jump") || joybutton.Pressed == true)
+        if (Input.GetButtonDown("Jump") )
         {
             Jump();
+
         }
 
         if (Input.GetButtonDown("Fire1"))
@@ -130,6 +132,7 @@ public class PlayerController : MonoBehaviour
                 m_Rigidbody2D.velocity = new Vector2(m_Rigidbody2D.velocity.x, -wallSlideSpeed);
             }
         }
+
     }
 
     public void Move(float move)
@@ -139,7 +142,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    private void Jump()
+    public void Jump()
     {
         if (isWallSliding && !m_Grounded)
         {
@@ -155,9 +158,10 @@ public class PlayerController : MonoBehaviour
             m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
             //Debug.Log("normal jump");
         }
+
     }
 
-    private void Attack()
+    public void Attack()
     {
         if (animState.IsName("Player_Idle")&&canAttack)
         {
