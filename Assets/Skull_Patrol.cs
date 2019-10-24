@@ -30,7 +30,7 @@ public class Skull_Patrol : StateMachineBehaviour
     // OnStateUpdate is called before OnStateUpdate is called on any state inside this state machine
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        Debug.Log(randomSpot);
+        //Debug.Log(randomSpot);
         if (waypoints.Length == 0) return;
         //Debug.Log(Vector2.Distance(waypoints[currentWP].transform.position, NPC.transform.position));
         if (Vector2.Distance(waypoints[randomSpot].transform.position,
