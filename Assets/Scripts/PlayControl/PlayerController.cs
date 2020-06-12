@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     private bool m_Grounded;
     private bool isTouchingWall;
     private bool isWallSliding;
-    private bool isAttacking = false;
+    //private bool isAttacking = false;
     private bool isFacingRight = true;
     private bool canAttack;
 
@@ -31,13 +31,13 @@ public class PlayerController : MonoBehaviour
    
     
 
-    [SerializeField]
-    private Transform m_LGroundCheck;
-    [SerializeField]
-    private Transform m_RGroundCheck;
-    [SerializeField]
-    private LayerMask m_WhatIsGround;
-    [SerializeField]
+
+    public Transform m_LGroundCheck;
+
+    public Transform m_RGroundCheck;
+
+    public LayerMask m_WhatIsGround;
+
     public Transform wallCheck;
 
     private Rigidbody2D m_Rigidbody2D;

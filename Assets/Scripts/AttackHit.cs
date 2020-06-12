@@ -7,7 +7,7 @@ public class AttackHit : MonoBehaviour
 
     [SerializeField] enum AttacksWhat { Enemy, Player };
     [SerializeField] AttacksWhat attacksWhat;
-    private int launchDirection = 1;
+    //private int launchDirection = 1;
     [SerializeField] private GameObject parent;
 
     //private BoxCollider2D boxCollider2d;
@@ -46,7 +46,7 @@ public class AttackHit : MonoBehaviour
         {
         Debug.Log("OnTriggerEnter");
             
-        col.gameObject.GetComponent(attacksWhat.ToString()).SendMessage("Hit");
+        //col.gameObject.GetComponent(attacksWhat.ToString()).SendMessage("Hit");
         }
         //    }
 

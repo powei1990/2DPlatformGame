@@ -13,7 +13,7 @@ public class EnemyAI : MonoBehaviour
     Animator anim;
 
     //public State state;
-    private bool alive;
+    //private bool alive;
     public GameObject Player;
     //public GameObject[] waypoints;
     //private int waypointInd;
@@ -30,7 +30,7 @@ public class EnemyAI : MonoBehaviour
 
         //state = EnemyAI.State.PATROL;
 
-        alive = true;
+        //alive = true;
 
         //StartCoroutine("FSM");
 
